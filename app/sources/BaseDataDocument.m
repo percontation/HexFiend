@@ -15,6 +15,7 @@
 #import <HexFiend/HexFiend.h>
 #include <pthread.h>
 #include <objc/runtime.h>
+#include <objc/message.h>
 
 static const char *const kProgressContext = "context";
 
@@ -846,7 +847,7 @@ static inline Class preferredByteArrayClass(void) {
         if (commandToRunAfterBannerIsDoneHiding) {
             SEL command = commandToRunAfterBannerIsDoneHiding;
             commandToRunAfterBannerIsDoneHiding = NULL;
-            [self performSelector:command withObject:nil];
+            objc_msgSend(self, command);
         }
     }
 }
@@ -1407,7 +1408,7 @@ cancelled:;
     const SEL actions[] = {@selector(replaceAll:), @selector(replace:), @selector(replaceAndFind:), @selector(findPrevious:), @selector(findNext:)};
     NSUInteger selection = [sender selectedSegment];
     if (selection < sizeof actions / sizeof *actions) {
-        [self performSelector:actions[selection] withObject:sender];
+        objc_msgSend(self, actions[selection], sender);
     } else {
         NSBeep();
     }
