@@ -593,10 +593,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
     return self;
 }
 
-- (void)dealloc {
-    [inspectors release];
-    [super dealloc];
-}
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     HFASSERT([coder allowsKeyedCoding]);
@@ -607,7 +603,7 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
 - (id)initWithCoder:(NSCoder *)coder {
     HFASSERT([coder allowsKeyedCoding]);
     self = [super initWithCoder:coder];
-    inspectors = [[coder decodeObjectForKey:@"HFInspectors"] retain];
+    inspectors = [coder decodeObjectForKey:@"HFInspectors"];
     return self;
 }
 
@@ -616,7 +612,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
     if (! defaultInspectorDictionaries) {
         DataInspector *ins = [[DataInspector alloc] init];
         [inspectors addObject:ins];
-        [ins release];
     }
     else {
         NSEnumerator *enumer = [defaultInspectorDictionaries objectEnumerator];
@@ -625,7 +620,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
             DataInspector *ins = [[DataInspector alloc] init];
             [ins setPropertyListRepresentation:inspectorDictionary];
             [inspectors addObject:ins];
-            [ins release];            
         }
     }
 }
@@ -638,7 +632,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
         [inspectorDictionaries addObject:[inspector propertyListRepresentation]];
     }
     [[NSUserDefaults standardUserDefaults] setObject:inspectorDictionaries forKey:kDataInspectorUserDefaultsKey];
-    [inspectorDictionaries release];
 }
 
 - (NSView *)createView {
@@ -684,7 +677,7 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
     return ll2l(selectedRange.length);
 }
 
-- (id)valueFromInspector:(DataInspector *)inspector isError:(BOOL *)outIsError{
+- (id)valueFromInspector:(DataInspector *)inspector isError:(BOOL *)outIsError {
     HFController *controller = [self controller];
     return [inspector valueForController:controller ranges:[controller selectedContentsRanges] isError:outIsError];
 }
@@ -735,7 +728,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
                 NSArray *selectedRanges = [controller selectedContentsRanges];
                 NSData *data = [[NSData alloc] initWithBytesNoCopy:bytes length:byteCount freeWhenDone:NO];
                 [controller insertData:data replacingPreviousBytes:0 allowUndoCoalescing:NO];
-                [data release];
                 [controller setSelectedContentsRanges:selectedRanges]; //Hack to preserve the selection across the data insertion
             }
         }
@@ -774,11 +766,9 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
 	BOOL wrapped = [ins incrementToNextType];
 	if (wrapped) break;
     }
-    [existingInspectors release];
     
     NSInteger clickedRow = [table clickedRow];
     [inspectors insertObject:ins atIndex:clickedRow + 1];
-    [ins release];
     [self saveDefaultInspectors];
     [self resizeTableViewAfterChangingRowCount];
 }

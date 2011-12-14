@@ -51,7 +51,7 @@ static NSString *nameForProcessWithPID(pid_t pidNum)
     }
     
     free( args );
-    return [returnString autorelease];
+    return returnString;
 }
 
 static int GetBSDProcessList(struct kinfo_proc **procList, size_t *procCount)
@@ -154,7 +154,6 @@ static int GetBSDProcessList(struct kinfo_proc **procList, size_t *procCount)
     [[NSDocumentController sharedDocumentController] addDocument:doc];
     [doc makeWindowControllers];
     [doc showWindows];
-    [doc release];
 }
 
 - (IBAction)openProcessByProcessMenuItem:(id)sender {
@@ -208,10 +207,8 @@ static NSInteger compareMenuItems(id item1, id item2, void *unused) {
 		NSImage *icon = [image copy];
 		[icon setSize:NSMakeSize(16, 16)];
 		[item setImage:icon];
-		[icon release];
 	    }
 	    [items addObject:item];
-	    [item release];
 	}
     }
     free(procs);
