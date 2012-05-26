@@ -48,7 +48,6 @@
 						<int key="NSvFlags">266</int>
 						<string key="NSFrame">{{130, 9}, {105, 19}}</string>
 						<reference key="NSSuperview" ref="1005"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="901719687"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="1035097676">
@@ -88,7 +87,6 @@
 						<int key="NSvFlags">268</int>
 						<string key="NSFrame">{{25, 11}, {100, 14}}</string>
 						<reference key="NSSuperview" ref="1005"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="506661432"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="1016653387">
@@ -120,7 +118,6 @@
 						<int key="NSvFlags">265</int>
 						<string key="NSFrame">{{246, 9}, {120, 18}}</string>
 						<reference key="NSSuperview" ref="1005"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="142255690"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="920969600">
@@ -170,7 +167,6 @@
 				</object>
 				<string key="NSFrameSize">{443, 36}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="468221191"/>
 				<string key="NSClassName">HFDocumentOperationView</string>
 			</object>
