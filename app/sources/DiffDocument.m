@@ -70,7 +70,6 @@
     [[NSDocumentController sharedDocumentController] addDocument:doc];
     [doc makeWindowControllers];
     [doc showWindows];
-    [doc release];
 }
 
 + (void)compareFrontTwoDocuments {

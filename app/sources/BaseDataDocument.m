@@ -987,6 +987,7 @@ static inline Class preferredByteArrayClass(void) {
     [(NSTextField*)[saveView viewNamed:@"saveLabelField"] setStringValue:[NSString stringWithFormat:@"Saving \"%@\"", [self displayName]]];
 
     __block NSInteger saveResult = 0;
+    //TODO: Check to see how ARC deals with outError/localError business
     [saveView startOperation:^id(HFProgressTracker *tracker) {
         NSError *localError = nil;
         id result = [self threadedSaveToURL:inAbsoluteURL trackingProgress:tracker error:&localError];
@@ -1010,8 +1011,6 @@ static inline Class preferredByteArrayClass(void) {
             }
         }
     }
-
-    [*outError autorelease];
 
     [showSaveViewAfterDelayTimer invalidate];
     showSaveViewAfterDelayTimer = nil;
@@ -1521,7 +1520,6 @@ cancelled:;
 
 - (void)populateBookmarksMenu:(NSMenu *)bookmarksMenu {
     @autoreleasepool {
-    
         NSUInteger itemCount = [bookmarksMenu numberOfItems];
         HFASSERT(itemCount >= 2); //we never delete the first two items
         
@@ -1532,21 +1530,20 @@ cancelled:;
         /* Initial two items, plus maybe a separator, plus two bookmark items per bookmark */
         NSUInteger desiredItemCount = 2 + (numberOfBookmarks > 0) + 2 * numberOfBookmarks;
         
-        item = [bookmarksMenu itemAtIndex:itemIndex++];
-        [item setTitle:[NSString stringWithFormat:@"Select Bookmark %lu", (unsigned long)bookmarkIndex]];
-        [item setKeyEquivalent:keString];
-        [item setAction:@selector(selectBookmark:)];
-        [item setKeyEquivalentModifierMask:NSCommandKeyMask];
-        [item setAlternate:NO];
-        [item setTag:bookmarkIndex];
+        /* Delete items until we get to the desired amount */
+        while (itemCount > desiredItemCount) [bookmarksMenu removeItemAtIndex:--itemCount];
         
-        item = [bookmarksMenu itemAtIndex:itemIndex++];
-        [item setKeyEquivalent:keString];
-        [item setAction:@selector(scrollToBookmark:)];
-        [item setKeyEquivalentModifierMask:NSCommandKeyMask | NSShiftKeyMask];
-        [item setAlternate:YES];
-        [item setTitle:[NSString stringWithFormat:@"Scroll to Bookmark %lu", (unsigned long)bookmarkIndex]];
-        [item setTag:bookmarkIndex];
+        /* Add items until we get to the new amount */
+        while (itemCount < desiredItemCount) {
+            if (itemCount == 2) {
+                [bookmarksMenu insertItem:[NSMenuItem separatorItem] atIndex:itemCount];
+            }
+            else {
+                NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"" action:@selector(self) keyEquivalent:@""];
+                [bookmarksMenu insertItem:item atIndex:itemCount];
+            }
+            itemCount++;
+        }
         
         /* Update the items */
         NSUInteger itemIndex = 3, bookmarkIndex = 0; //0 is an invalid bookmark
@@ -1555,13 +1552,10 @@ cancelled:;
             bookmarkIndex = [bookmarks indexGreaterThanIndex:bookmarkIndex];
             
             /* Compute our KE */
-            NSString *keString;
+            NSString *keString = @"";
             if (bookmarkIndex <= 10) {
                 char ke = '0' + (bookmarkIndex % 10);
-                keString = [[NSString alloc] initWithBytes:&ke length:1 encoding:NSASCIIStringEncoding];	
-            }
-            else {
-                keString = @"";
+                keString = [[NSString alloc] initWithBytes:&ke length:1 encoding:NSASCIIStringEncoding];
             }
             
             /* The first item is Select Bookmark, the second (alternate) is Scroll To Bookmark */
@@ -1569,7 +1563,7 @@ cancelled:;
             NSMenuItem *item;
             
             item = [bookmarksMenu itemAtIndex:itemIndex++];
-            [item setTitle:[NSString stringWithFormat:@"Select Bookmark %lu", bookmarkIndex]];
+            [item setTitle:[NSString stringWithFormat:@"Select Bookmark %lu", (unsigned long)bookmarkIndex]];
             [item setKeyEquivalent:keString];
             [item setAction:@selector(selectBookmark:)];
             [item setKeyEquivalentModifierMask:NSCommandKeyMask];
@@ -1581,11 +1575,10 @@ cancelled:;
             [item setAction:@selector(scrollToBookmark:)];
             [item setKeyEquivalentModifierMask:NSCommandKeyMask | NSShiftKeyMask];
             [item setAlternate:YES];
-            [item setTitle:[NSString stringWithFormat:@"Scroll to Bookmark %lu", bookmarkIndex]];
-            [item setTag:bookmarkIndex];
-            
+            [item setTitle:[NSString stringWithFormat:@"Scroll to Bookmark %lu", (unsigned long)bookmarkIndex]];
+            [item setTag:bookmarkIndex];            
         }
-    
+        
     }
     
     HFASSERT([bookmarksMenu numberOfItems] >= 2); //we never delete the first two items
