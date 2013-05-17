@@ -66,6 +66,11 @@ static void walk_tree_nodes(HFBTree *tree, void (^blk)(HFBTreeNode *node, BOOL i
 #define ASSERT_IS_BRANCH(a) HFASSERT(! a->isLeaf)
 #define ASSERT_IS_LEAF(a) HFASSERT(a->isLeaf)
 
+#else
+
+#define ASSERT_IS_BRANCH(a)
+#define ASSERT_IS_LEAF(a)
+
 #endif
 
 #define DEFEAT_INLINE 1
