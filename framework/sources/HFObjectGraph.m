@@ -150,21 +150,16 @@ static void topologicallySort(HFObjectGraph *self, const void *object, NSMutable
 
 /* Methods and functions starting with "naive" are meant to be used for verifying the correctness of more sophisticated algorithms. */
 
-static BOOL naiveSearch(HFObjectGraph *self, id start, id goal, id *visitedSet, NSUInteger *visitedSetCount) {
+static BOOL naiveSearch(HFObjectGraph *self, id start, id goal, NSMutableSet *visitedSet) {
     if (start == goal) return YES;
-    NSUInteger i, visitedSetTempCount = *visitedSetCount;
-    for (i=0; i < visitedSetTempCount; i++) if (visitedSet[i] == start) return NO;
-    visitedSet[visitedSetTempCount++] = start;
-    *visitedSetCount = visitedSetTempCount;
-    CFSetRef dependencies = CFDictionaryGetValue(self->graph, start);
+    if ([visitedSet containsObject:start]) return NO;
+    [visitedSet addObject:start];
+    
+    NSSet *dependencies = [self->graph objectForKey:start];
     if (dependencies) {
-        NSUInteger max = CFSetGetCount(dependencies);
-        NEW_ARRAY(id, dependencyObjects, max);
-        CFSetGetValues(dependencies, (const void **)dependencyObjects);
-        for (i=0; i < max; i++) {
-            if (naiveSearch(self, dependencyObjects[i], goal, visitedSet, visitedSetCount)) return YES;
+        for (id object in dependencies) {
+            if (naiveSearch(self, object, goal, visitedSet)) return YES;
         }
-        FREE_ARRAY(dependencyObjects);
     }
     return NO;
 }
@@ -173,40 +168,35 @@ static BOOL naiveSearch(HFObjectGraph *self, id start, id goal, id *visitedSet, 
     REQUIRE_NOT_NULL(obj1);
     REQUIRE_NOT_NULL(obj2);
     if (obj1 == obj2) return YES;
-    
-    //    CFMutableSetRef set = CFSetCreateMutable(NULL, 0, NULL);
-    NSUInteger objectCount = [containedObjects count];
-    NSUInteger visitedSetCount = 0;
-    NEW_ARRAY(id, objectSet, objectCount);
-    BOOL result = naiveSearch(self, obj1, obj2, objectSet, &visitedSetCount);
-    FREE_ARRAY(objectSet);
+    BOOL result = naiveSearch(self, obj1, obj2, [NSMutableSet set]);
     return result;
 }
 
-static void collectDictionaryValues(const void *key, const void *value, void *context) {
-    USE(key);
-    if ([(id)context indexOfObjectIdenticalTo:(id)value] == NSNotFound) [(id)context addObject:(id)value];
-}
-
 - (NSArray *)naiveStronglyConnectedComponentsForObjects:(NSArray *)objects {
-    NSMutableArray *result = [NSMutableArray array];
     /* A super-lame naive algorithm for finding all the strongly connected components of a graph. */
-    CFMutableDictionaryRef components = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    FOREACH(id, obj1, objects) {
-        NSMutableArray *loop = (id)CFDictionaryGetValue(components, obj1);
-        if (! loop) {
+    NSMutableDictionary  *components = [NSMutableDictionary dictionary];
+    for(id obj1 in objects) {
+        NSMutableArray *loop = [components objectForKey:obj1];
+        if (!loop) {
             loop = [NSMutableArray array];
-            CFDictionarySetValue(components, obj1, loop);
+            [components setObject:loop forKey:obj1];
         }
-        FOREACH(id, obj2, objects) {
+        for(id obj2 in objects) {
             if (! [loop containsObject:obj2] && [self naivePathFrom:obj1 to:obj2] && [self naivePathFrom:obj2 to:obj1]) {
-                CFDictionarySetValue(components, obj2, loop);
+                [components setObject:loop forKey:obj2];
                 [loop addObject:obj2];
             }
         }
     }
-    CFDictionaryApplyFunction(components, collectDictionaryValues, result);
-    CFRelease(components);
+
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[components count]];
+    NSMutableSet *set = [NSMutableSet setWithCapacity:[components count]];
+    for(id obj in [components objectEnumerator]) {
+        if(![set containsObject:obj]) {
+            [set addObject:obj];
+            [result addObject:obj];
+        }
+    }
     return result;
 }
 
@@ -229,8 +219,7 @@ static NSSet *arraysToSets(NSArray *array, NSUInteger depth) {
 
 + (void)runTests {
     NSUInteger outer;
-    for (outer = 0; outer < 100; outer++) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    for (outer = 0; outer < 100; outer++) @autoreleasepool {
         HFObjectGraph *graph = [[self alloc] init];
         NSUInteger i, objectCount = 2 + (random() % (100 - 2));
         NSUInteger connectionCount = random() % (objectCount * 2);
@@ -251,9 +240,6 @@ static NSSet *arraysToSets(NSArray *array, NSUInteger depth) {
             printf("Error in HFObjectGraph tests!\n\tnaive: %s\n\ttarjan: %s\n", [[naive description] UTF8String], [[tarjan description] UTF8String]);
             exit(EXIT_FAILURE);
         }
-        
-        [graph release];
-        [pool drain];
     }
 }
 

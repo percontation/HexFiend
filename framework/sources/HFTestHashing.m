@@ -9,36 +9,37 @@
 
 #import <HexFiend/HFTestHashing.h>
 #import <HexFiend/HFByteArray.h>
-#include <openssl/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 
 NSData *HFHashFile(NSURL *url) {
-    NSMutableData *data = [NSMutableData dataWithLength:SHA_DIGEST_LENGTH];
-    SHA_CTX ctx;
+    NSMutableData *data = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1_CTX ctx;
     memset(&ctx, 0, sizeof ctx);
-    SHA1_Init(&ctx);
+    CC_SHA1_Init(&ctx);
     
     REQUIRE_NOT_NULL(url);
     HFASSERT([url isFileURL]);
     const NSUInteger bufferSize = 1024 * 1024 * 4;
     unsigned char *buffer = malloc(bufferSize);
     NSInteger amount;
-    NSInputStream *stream = [[[NSInputStream alloc] initWithFileAtPath:[url path]] autorelease];
+    NSInputStream *stream = [[NSInputStream alloc] initWithFileAtPath:[url path]];
     [stream open];
     while ((amount = [stream read:buffer maxLength:bufferSize]) > 0) {
-        SHA1_Update(&ctx, buffer, amount);
+        assert(amount == (CC_LONG)amount);
+        CC_SHA1_Update(&ctx, buffer, (CC_LONG)amount);
     }
     [stream close];
-    SHA1_Final([data mutableBytes], &ctx);
+    CC_SHA1_Final([data mutableBytes], &ctx);
     free(buffer);
     return data;
 }
 
 NSData *HFHashByteArray(HFByteArray *array) {
     REQUIRE_NOT_NULL(array);
-    NSMutableData *data = [NSMutableData dataWithLength:SHA_DIGEST_LENGTH];
-    SHA_CTX ctx;
+    NSMutableData *data = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1_CTX ctx;
     memset(&ctx, 0, sizeof ctx);
-    SHA1_Init(&ctx);
+    CC_SHA1_Init(&ctx);
     
     const NSUInteger bufferSize = 1024 * 1024 * 4;
     unsigned char *buffer = malloc(bufferSize);
@@ -47,10 +48,11 @@ NSData *HFHashByteArray(HFByteArray *array) {
         NSUInteger amount = bufferSize;
         if (amount > (length - offset)) amount = ll2l(length - offset);
         [array copyBytes:buffer range:HFRangeMake(offset, amount)];
-        SHA1_Update(&ctx, buffer, amount);
+        assert(amount == (CC_LONG)amount);
+        CC_SHA1_Update(&ctx, buffer, (CC_LONG)amount);
         offset += amount;
     }
-    SHA1_Final([data mutableBytes], &ctx);
+    CC_SHA1_Final([data mutableBytes], &ctx);
     free(buffer);
     return data;
 }

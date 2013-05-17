@@ -423,11 +423,10 @@ enum LineCoverage_t {
     NSWindow *window = [timer userInfo];
     CGFloat alpha = [window alphaValue];
     alpha -= (CGFloat)(3. / 30.);
-    if (alpha < 0) {
+    if (alpha <= 0) {
         [window close];
         [timer invalidate];
-    }
-    else {
+    } else {
         [window setAlphaValue:alpha];
     }
 }
