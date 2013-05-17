@@ -23,13 +23,12 @@ static NSString *nameForProcessWithPID(pid_t pidNum)
     
     size = sizeof(maxarg);
     if ( sysctl(mib, 2, &maxarg, &size, NULL, 0) == -1 ) {
-	return nil;
+        return nil;
     }
     
     args = (char *)malloc( maxarg );
-    if ( args == NULL ) {
-	return nil;
-    }
+    if ( args == NULL )
+        return nil;
     
     mib[0] = CTL_KERN;
     mib[1] = KERN_PROCARGS2;
@@ -37,17 +36,17 @@ static NSString *nameForProcessWithPID(pid_t pidNum)
     
     size = (size_t)maxarg;
     if ( sysctl(mib, 3, args, &size, NULL, 0) == -1 ) {
-	free( args );
-	return nil;
+        free(args);
+        return nil;
     }
     
     memcpy( &numArgs, args, sizeof(numArgs) );
     stringPtr = args + sizeof(numArgs);
     
     if ( (namePtr = strrchr(stringPtr, '/')) != NULL ) {
-	returnString = [[NSString alloc] initWithUTF8String:namePtr + 1];
+        returnString = [[NSString alloc] initWithUTF8String:namePtr + 1];
     } else {
-	returnString = [[NSString alloc] initWithUTF8String:stringPtr];
+        returnString = [[NSString alloc] initWithUTF8String:stringPtr];
     }
     
     free( args );
@@ -212,7 +211,7 @@ static NSInteger compareMenuItems(id item1, id item2, void *unused) {
 	}
     }
     free(procs);
-    
+
     [items sortUsingFunction:compareMenuItems context:NULL];
     FOREACH(NSMenuItem *, item, items) {
 	[menu addItem:item];

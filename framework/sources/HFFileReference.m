@@ -268,7 +268,6 @@ static BOOL returnFTruncateError(NSError **error) {
 
 	if (S_ISCHR(fileMode) && blockSize) {
 		// We have to make sure all accesses are aligned
-		void *tempBuf = NULL;
 		unsigned prePad = (unsigned)(pos % blockSize);
 		if (prePad) {
 			// Deal with the first unaligned block
@@ -320,7 +319,6 @@ static BOOL returnFTruncateError(NSError **error) {
 	
 	if (S_ISCHR(fileMode) && blockSize) {
 		// We have to make sure all accesses are aligned
-		void *tempBuf = NULL;
 		unsigned prePad = (unsigned)(offset % blockSize);
 		if (prePad) {
 			// Deal with the first unaligned block
@@ -335,12 +333,10 @@ static BOOL returnFTruncateError(NSError **error) {
 			memcpy(tempBuf + prePad, buff, toCopy);
 			
 			result = pwrite(fileDescriptor, tempBuf, blockSize, offset - prePad);
-			if (result < 0)
-				return errno;
+			if (result < 0) goto returnErrno;
 			HFASSERT(result == (ssize_t)blockSize);
 
-			if (!(length -= toCopy))
-                return 0;
+			if (!(length -= toCopy)) goto returnZero;
 
 			offset += toCopy;
 			buff += toCopy;
@@ -350,8 +346,7 @@ static BOOL returnFTruncateError(NSError **error) {
 	}
 
     ssize_t result = pwrite(fileDescriptor, buff, (size_t)length, (off_t)offset);
-    if (result < 0)
-		return errno;
+    if (result < 0) goto returnErrno;
     HFASSERT(result == (ssize_t)length);
 
 	if (lastBlockLen) {
@@ -368,13 +363,16 @@ static BOOL returnFTruncateError(NSError **error) {
 		memcpy(tempBuf, buff, lastBlockLen);
 
 		result = pwrite(fileDescriptor, tempBuf, blockSize, offset);
-		if (result < 0)
-			return errno;
+		if (result < 0) goto returnErrno;
 		HFASSERT(result == (ssize_t)blockSize);
 	}
-    free(tempBuf);
-
+    
+returnZero:
+    if(tempBuf) free(tempBuf);
 	return 0;
+returnErrno:
+    if(tempBuf) free(tempBuf);
+    return errno;
 }
 
 - (void)close {
