@@ -24,8 +24,8 @@ enum
     HFControllerContentLength = 1 << 1,		/*!< Indicates that the length of the ByteArray has changed. */
     HFControllerDisplayedLineRange = 1 << 2,	/*!< Indicates that the displayedLineRange property of the document has changed (e.g. the user scrolled). */
     HFControllerSelectedRanges = 1 << 3,	/*!< Indicates that the selectedContentsRanges property of the document has changed (e.g. the user selected some other range). */    
-    HFControllerSelectionPulseAmount = 1 << 4,	/*!< Indicates that the amount of "pulse" to show in the Find pulse indicator has changed. */    
-    HFControllerBytesPerLine = 1 << 5,		/*!< Indicates that the number of bytes to show per line has changed. */        
+    HFControllerSelectionPulse = 1 << 4,	/*!< Indicates that a Find pulse should occur on the selection. */
+    HFControllerBytesPerLine = 1 << 5,		/*!< Indicates that the number of bytes to show per line has changed. */
     HFControllerBytesPerColumn = 1 << 6,	/*!< Indicates that the number of bytes per column (byte grouping) has changed. */
     HFControllerEditable = 1 << 7,		/*!< Indicates that the document has become (or is no longer) editable. */
     HFControllerFont = 1 << 8,			/*!< Indicates that the font property has changed. */
@@ -123,9 +123,6 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
     unsigned long long selectionAnchor;
     HFRange selectionAnchorRange;
     
-    CFAbsoluteTime pulseSelectionStartTime, pulseSelectionCurrentTime;
-    NSTimer *pulseSelectionTimer;
-    
     /* Basic cache support */
     HFRange cachedRange;
     NSData *cachedData;
@@ -206,11 +203,9 @@ You create an HFController via <tt>[[HFController alloc] init]</tt>.  After that
 */
 //{@
 
-/*! Begins selection pulsing (e.g. following a successful Find operation). Representers will receive callbacks indicating that HFControllerSelectionPulseAmount has changed. */
+/*! Causes a selection pulse (e.g. following a successful Find operation). Forwards on to the representer.  */
 - (void)pulseSelection;
 
-/*! Return the amount that the "Find pulse indicator" should show.  0 means no pulse, 1 means maximum pulse.  This is useful for Representers that support find and replace. */
-- (double)selectionPulseAmount;
 //@}
 
 /*! @name Selection handling

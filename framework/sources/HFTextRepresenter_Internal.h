@@ -23,9 +23,6 @@
 // Must be implemented by subclasses.  Return NSData representing the string value.
 - (NSData *)dataFromPasteboardString:(NSString *)string;
 
-// Value between [0, 1]
-- (double)selectionPulseAmount;
-
 - (void)scrollWheel:(NSEvent *)event;
 
 - (void)selectAll:(id)sender;

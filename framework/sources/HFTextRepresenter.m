@@ -233,10 +233,6 @@
     [[self controller] selectAll:sender];
 }
 
-- (double)selectionPulseAmount {
-    return [[self controller] selectionPulseAmount];
-}
-
 - (void)controllerDidChange:(HFControllerPropertyBits)bits {
     if (bits & (HFControllerFont | HFControllerLineHeight)) {
         [[self view] setFont:[[self controller] font]];
@@ -246,9 +242,6 @@
     }
     if (bits & (HFControllerSelectedRanges | HFControllerDisplayedLineRange)) {
         [[self view] updateSelectedRanges];
-    }
-    if (bits & (HFControllerSelectionPulseAmount)) {
-        [[self view] updateSelectionPulse];
     }
     if (bits & (HFControllerEditable)) {
         [[self view] setEditable:[[self controller] editable]];
@@ -269,6 +262,12 @@
             [[self view] setByteColoring:NULL];
         }
     }
+    
+    // Order sort-of matters here
+    if (bits & (HFControllerDisplayedLineRange))  [[self view] updateSelectionPulse];
+    if (bits & (HFControllerSelectedRanges))      [[self view] terminateSelectionPulse];
+    if (bits & (HFControllerSelectionPulse))      [[self view] triggerSelectionPulse];
+
     [super controllerDidChange:bits];
 }
 

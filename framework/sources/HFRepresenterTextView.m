@@ -14,6 +14,7 @@
 #import <objc/message.h>
 
 static const NSTimeInterval HFCaretBlinkFrequency = 0.56;
+static const CFTimeInterval kPulseDuration = .2;
 
 static const CGFloat HFTeardropRadius = 12;
 
@@ -398,125 +399,142 @@ enum LineCoverage_t {
      //balance the retain we borrowed from the ivar
     [self _updateCaretTimer];
     [self _forceCaretOnIfHasCaretTimer];
-    
-    // A new pulse window will be created at the new selected range if necessary.
-    [self terminateSelectionPulse];
 }
 
 - (void)drawPulseBackgroundInRect:(NSRect)pulseRect {
-    [[NSColor yellowColor] set];
-    if (HFIsRunningOnLeopardOrLater()) {
-        CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-        CGContextSaveGState(ctx);
-        [[NSBezierPath bezierPathWithRoundedRect:pulseRect xRadius:25 yRadius:25] addClip];
-        NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:[NSColor yellowColor] endingColor:[NSColor colorWithCalibratedRed:(CGFloat)1. green:(CGFloat).75 blue:0 alpha:1]];
-        [gradient drawInRect:pulseRect angle:90];
-        CGContextRestoreGState(ctx);
-    }
-    else {
+    if (!HFIsRunningOnLeopardOrLater()) {
+        [[[NSColor yellowColor] colorWithAlphaComponent:0.95] set];
         NSRectFill(pulseRect);
+        return;
     }
+    
+    CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextSaveGState(ctx);
+    [[NSBezierPath bezierPathWithRoundedRect:pulseRect xRadius:25 yRadius:25] addClip];
+    NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:[[NSColor yellowColor] colorWithAlphaComponent:.95]
+                                                         endingColor:[NSColor colorWithCalibratedRed:1 green:.75
+                                                                                                blue:0 alpha:.95]];
+    [gradient drawInRect:pulseRect angle:90];
+    CGContextRestoreGState(ctx);
 }
 
-- (void)fadePulseWindowTimer:(NSTimer *)timer {
-    // TODO: close & invalidate immediatley if view scrolls.
-    NSWindow *window = [timer userInfo];
-    CGFloat alpha = [window alphaValue];
-    alpha -= (CGFloat)(3. / 30.);
-    if (alpha <= 0) {
-        [window close];
-        [timer invalidate];
-    } else {
-        [window setAlphaValue:alpha];
-    }
+- (NSRect)selectionPulseBoundsForRanges:(NSArray*)ranges {
+    if ([ranges count] == 0) return NSZeroRect;
+    NSRange firstRange = [[ranges objectAtIndex:0] rangeValue];
+    if (firstRange.length == 0) return NSZeroRect;
+    NSRange lastRange = [[ranges lastObject] rangeValue];
+
+    NSPoint startPoint = [self originForCharacterAtByteIndex:firstRange.location];
+    // don't just use originForCharacterAtByteIndex:NSMaxRange(lastRange), because if the last selected character is at the end of the line,
+    // this will cause us to highlight the next line.  Instead, get the last selected character, and add an advance to it.
+    HFASSERT(lastRange.length > 0);
+    NSPoint endPoint = [self originForCharacterAtByteIndex:NSMaxRange(lastRange) - 1];
+    endPoint.x += [self advancePerCharacter];
+    HFASSERT(endPoint.y >= startPoint.y);
+    NSRect bounds = [self bounds];
+    return NSMakeRect(bounds.origin.x, startPoint.y, bounds.size.width, endPoint.y - startPoint.y + [self lineHeight]);
 }
 
-- (void)terminateSelectionPulse {
-    if (pulseWindow) {
-        [[self window] removeChildWindow:pulseWindow];
-        [pulseWindow setFrame:pulseWindowBaseFrameInScreenCoordinates display:YES animate:NO];
-        [NSTimer scheduledTimerWithTimeInterval:1. / 30. target:self selector:@selector(fadePulseWindowTimer:) userInfo:pulseWindow repeats:YES];
-        //release is not necessary, since it relases when closed by default
-        pulseWindow = nil;
-        pulseWindowBaseFrameInScreenCoordinates = NSZeroRect;
+- (void)triggerSelectionPulse {
+    if (pulseWindow != nil) return; // Already an active pulse (that would not be active if selection had changed)
+    NSArray *ranges = [self displayedSelectedContentsRanges];
+    if ([ranges count] == 0 || [[ranges objectAtIndex:0] rangeValue].length == 0) return;
+
+    pulseWindow = [[NSWindow alloc] initWithContentRect:NSZeroRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+    [pulseWindow setReleasedWhenClosed:NO]; // Apparently, NSWindow doesn't play nice with ARC.
+    [pulseWindow setIgnoresMouseEvents:YES];
+    [pulseWindow setOpaque:NO];
+    if(NSAppKitVersionNumber >= NSAppKitVersionNumber10_7)
+        [pulseWindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenAuxiliary];
+    HFTextSelectionPulseView *pulseView = [[HFTextSelectionPulseView alloc] initWithFrame:[[pulseWindow contentView] frame]];
+    [pulseWindow setContentView:pulseView];
+    [[self window] addChildWindow:pulseWindow ordered:NSWindowAbove];
+    [pulseWindow setLevel:[[self window] level]+1];
+    
+    /* Render our image at 200% of its current size */
+    NSRect pulseBounds = [self selectionPulseBoundsForRanges:ranges];
+    const CGFloat imageScale = 2;
+    NSRect imageRect = (NSRect){NSZeroPoint, NSMakeSize(pulseBounds.size.width * imageScale, pulseBounds.size.height * imageScale)};
+    NSImage *image = [[NSImage alloc] initWithSize:imageRect.size];
+    [image setCacheMode:NSImageCacheNever];
+    [image setFlipped:YES];
+    [image lockFocus];
+    CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextClearRect(ctx, *(CGRect *)&imageRect);
+    [self drawPulseBackgroundInRect:imageRect];
+    [[NSColor blackColor] set];
+    [[font screenFont] set];
+    if (! [self shouldAntialias]) CGContextSetShouldAntialias(ctx, NO);
+    CGContextScaleCTM(ctx, imageScale, imageScale);
+    CGContextTranslateCTM(ctx, -pulseBounds.origin.x, -pulseBounds.origin.y);
+    [self drawTextWithClip:pulseBounds restrictingToTextInRanges:ranges];
+    [image unlockFocus];
+    [pulseView setImage:image];
+    
+    pulseStartTime = CFAbsoluteTimeGetCurrent(); // TODO: Bug, this isn't monotonic time.
+    [self updateSelectionPulse];
+    pulseTimer = [NSTimer scheduledTimerWithTimeInterval:1./30. target:self selector:@selector(updatePulseAnimation:) userInfo:nil repeats:YES];
+}
+
+- (void)updatePulseAnimation:(NSTimer*)timer {
+    (void)timer;
+    HFASSERT(pulseWindow);
+    CFTimeInterval t = CFAbsoluteTimeGetCurrent() - pulseStartTime;
+    if (t >= kPulseDuration) {
+        [self terminateSelectionPulse];
+        return;
     }
+    CGFloat growth = (t/kPulseDuration) * .10; // Get 10% larger
+    CGFloat dX = pulseWindowBaseBounds.size.width * growth;
+    CGFloat dY = pulseWindowBaseBounds.size.height * growth;
+    NSRect scaledPulse  = NSInsetRect(pulseWindowBaseBounds, -dX, -dY);    
+    NSRect boundedPulse = NSIntersectionRect(scaledPulse, NSInsetRect([self bounds], -40, -40)); // Don't spill too far over window.
+    [pulseWindow setFrame:[[self window] convertRectToScreen:[self convertRect:boundedPulse toView:nil]] display:YES animate:NO];
 }
 
 - (void)updateSelectionPulse {
-    double selectionPulseAmount = [[self representer] selectionPulseAmount];
-    if (selectionPulseAmount == 0) {
-        [self terminateSelectionPulse];
-    }
-    else {
-        if (pulseWindow == nil) {
-            NSArray *ranges = [self displayedSelectedContentsRanges];
-            if ([ranges count] > 0) {
-                NSWindow *thisWindow = [self window];
-                NSRange firstRange = [[ranges objectAtIndex:0] rangeValue];
-                NSRange lastRange = [[ranges lastObject] rangeValue];
-                NSPoint startPoint = [self originForCharacterAtByteIndex:firstRange.location];
-                // don't just use originForCharacterAtByteIndex:NSMaxRange(lastRange), because if the last selected character is at the end of the line, this will cause us to highlight the next line.  Instead, get the last selected character, and add an advance to it.
-                //                HFASSERT(lastRange.length > 0);
-                NSPoint endPoint;
-                if (! NSEqualRanges(firstRange, lastRange)) {
-                    endPoint = [self originForCharacterAtByteIndex:NSMaxRange(lastRange) - 1];
-                }
-                else {
-                    endPoint = startPoint;
-                }
-                endPoint.x += [self advancePerCharacter];
-                HFASSERT(endPoint.y >= startPoint.y);
-                NSRect bounds = [self bounds];
-                NSRect windowFrameInBoundsCoords;
-                windowFrameInBoundsCoords.origin.x = bounds.origin.x;
-                windowFrameInBoundsCoords.origin.y = startPoint.y;
-                windowFrameInBoundsCoords.size.width = bounds.size.width;
-                windowFrameInBoundsCoords.size.height = endPoint.y - startPoint.y + [self lineHeight];
-                
-                pulseWindowBaseFrameInScreenCoordinates = [self convertRect:windowFrameInBoundsCoords toView:nil];
-                pulseWindowBaseFrameInScreenCoordinates.origin = [[self window] convertBaseToScreen:pulseWindowBaseFrameInScreenCoordinates.origin];
-                
-                pulseWindow = [[NSWindow alloc] initWithContentRect:pulseWindowBaseFrameInScreenCoordinates styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
-                [pulseWindow setOpaque:NO];
-                HFTextSelectionPulseView *pulseView = [[HFTextSelectionPulseView alloc] initWithFrame:[[pulseWindow contentView] frame]];
-                [pulseWindow setContentView:pulseView];
-                
-                /* Render our image at 200% of its current size */
-                const CGFloat imageScale = 2;
-                NSRect imageRect = (NSRect){NSZeroPoint, NSMakeSize(windowFrameInBoundsCoords.size.width * imageScale, windowFrameInBoundsCoords.size.height * imageScale)};
-                NSImage *image = [[NSImage alloc] initWithSize:imageRect.size];
-                [image setCacheMode:NSImageCacheNever];
-                [image setFlipped:YES];
-                [image lockFocus];
-                CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-                CGContextClearRect(ctx, *(CGRect *)&imageRect);
-                [self drawPulseBackgroundInRect:imageRect];
-                [[NSColor blackColor] set];
-                [[font screenFont] set];
-                if (! [self shouldAntialias]) CGContextSetShouldAntialias(ctx, NO);
-                CGContextScaleCTM(ctx, imageScale, imageScale);
-                CGContextTranslateCTM(ctx, -windowFrameInBoundsCoords.origin.x, -windowFrameInBoundsCoords.origin.y);
-                [self drawTextWithClip:windowFrameInBoundsCoords restrictingToTextInRanges:ranges];
-                [image unlockFocus];
-                [pulseView setImage:image];
-                
-                if (thisWindow) {
-                    [thisWindow addChildWindow:pulseWindow ordered:NSWindowAbove];
-                }
-            }
-        }
+    if (pulseWindow == nil) return;
+    NSArray *ranges = [self displayedSelectedContentsRanges];
+    if ([ranges count] == 0 || [[ranges objectAtIndex:0] rangeValue].length == 0) [self terminateSelectionPulse];
+    pulseWindowBaseBounds = [self selectionPulseBoundsForRanges:ranges];
+    [self updatePulseAnimation:nil];
+}
+
+// Stub to allow timers to use blocks.
+- (void)blockTimer:(NSTimer *)timer {
+    void (^block)(__unsafe_unretained NSTimer*) = [timer userInfo];
+    block(timer);
+}
+
+- (void)terminateSelectionPulse {
+    if(pulseWindow == nil) return;
+    HFASSERT(pulseTimer);
+    
+    NSWindow *oldPulse = pulseWindow;
+    [pulseTimer invalidate];
+    pulseTimer = nil;
+    pulseWindow = nil;
+    
+    if (oldPulse) {
+        NSRect frame = [oldPulse frame];
+        [oldPulse setFrame:frame display:YES animate:NO];
         
-        if (pulseWindow) {
-            CGFloat scale = (CGFloat)(selectionPulseAmount * .25 + 1.);
-            NSRect scaledWindowFrame;
-            scaledWindowFrame.size.width = HFRound(pulseWindowBaseFrameInScreenCoordinates.size.width * scale);
-            scaledWindowFrame.size.height = HFRound(pulseWindowBaseFrameInScreenCoordinates.size.height * scale);
-            scaledWindowFrame.origin.x = pulseWindowBaseFrameInScreenCoordinates.origin.x - HFRound(((scale - 1) * scaledWindowFrame.size.width / 2));
-            scaledWindowFrame.origin.y = pulseWindowBaseFrameInScreenCoordinates.origin.y - HFRound(((scale - 1) * scaledWindowFrame.size.height / 2));
-            [pulseWindow setFrame:scaledWindowFrame display:YES animate:NO];
-        }
+        void (^block)(__unsafe_unretained NSTimer*) = ^(__unsafe_unretained NSTimer *timer) {
+            CGFloat alpha = [oldPulse alphaValue];
+            alpha -= (CGFloat)(3. / 30.);
+            if (alpha > 0) {
+                [oldPulse setAlphaValue:alpha];
+            } else {
+                [[oldPulse parentWindow] removeChildWindow:oldPulse];
+                [oldPulse close];
+                [timer invalidate];
+            }
+        };
+        
+        [NSTimer scheduledTimerWithTimeInterval:1./30. target:self selector:@selector(blockTimer:) userInfo:block repeats:YES];
     }
 }
+
 
 - (void)drawCaretIfNecessaryWithClip:(NSRect)clipRect {
     NSRect caretRect = NSIntersectionRect(caretRectToDraw, clipRect);
@@ -576,13 +594,6 @@ enum LineCoverage_t {
                 byteIndex = endByteForThisLineOfRange + 1;
             }
         }
-    }
-}
-
-- (void)pulseSelection {
-    pulseStartTime = CFAbsoluteTimeGetCurrent();
-    if (! pulseTimer) {
-        pulseTimer = [NSTimer scheduledTimerWithTimeInterval:(1. / 30.) target:self selector:@selector(pulseSelectionTimer:) userInfo:nil repeats:YES];
     }
 }
 

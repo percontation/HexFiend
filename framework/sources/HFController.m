@@ -21,6 +21,7 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import <objc/objc-auto.h>
+#import <libkern/OSAtomic.h>
 
 /* Used for the anchor range and location */
 #define NO_SELECTION ULLONG_MAX
@@ -37,8 +38,6 @@
 #define END_TRANSACTION() [self endPropertyChangeTransaction:token]
 
 static const CGFloat kScrollMultiplier = (CGFloat)1.5;
-
-static const CFTimeInterval kPulseDuration = .2;
 
 static void *KVOContextChangesAreLocked = &KVOContextChangesAreLocked;
 
@@ -168,28 +167,22 @@ static inline Class preferredByteArrayClass(void) {
 }
 
 - (void)_firePropertyChanges {
+    if(additionalPendingTransactions == nil && propertiesToUpdateInCurrentTransaction == 0) return;
+
     NSMutableArray *pendingTransactions = additionalPendingTransactions;
-    NSUInteger pendingTransactionCount = [pendingTransactions count];
     additionalPendingTransactions = nil;
     HFControllerPropertyBits propertiesToUpdate = propertiesToUpdateInCurrentTransaction;
     propertiesToUpdateInCurrentTransaction = 0;
-    if (pendingTransactionCount > 0 || propertiesToUpdate != 0) {
-        BEGIN_TRANSACTION();
-        while (pendingTransactionCount--) {
-#if __LP64__
-            HFControllerPropertyBits propertiesInThisTransaction = [[pendingTransactions objectAtIndex:0] unsignedIntegerValue];
-#else
-            HFControllerPropertyBits propertiesInThisTransaction = [[pendingTransactions objectAtIndex:0] unsignedIntValue];
-#endif
-            [pendingTransactions removeObjectAtIndex:0];
-            HFASSERT(propertiesInThisTransaction != 0);
-            [self notifyRepresentersOfChanges:propertiesInThisTransaction];
-        }
-        if (propertiesToUpdate) {
-            [self notifyRepresentersOfChanges:propertiesToUpdate];
-        }
-        END_TRANSACTION();
+    BEGIN_TRANSACTION();
+    if(pendingTransactions) for(NSNumber *obj in pendingTransactions) {
+        HFControllerPropertyBits propertiesInThisTransaction = [obj unsignedIntegerValue];
+        HFASSERT(propertiesInThisTransaction != 0);
+        [self notifyRepresentersOfChanges:propertiesInThisTransaction];
     }
+    if (propertiesToUpdate) {
+        [self notifyRepresentersOfChanges:propertiesToUpdate];
+    }
+    END_TRANSACTION();
 }
 
 /* Inserts a "fence" so that all prior property change bits will be complete before any new ones */
@@ -1082,33 +1075,8 @@ static inline Class preferredByteArrayClass(void) {
     selectionAnchor = NO_SELECTION;
 }
 
-- (double)selectionPulseAmount {
-    double result = 0;
-    if (pulseSelectionStartTime > 0) {
-        CFTimeInterval diff = pulseSelectionCurrentTime - pulseSelectionStartTime;
-        if (diff > 0 && diff < kPulseDuration) {
-            result = 1. - fabs(diff * 2 - kPulseDuration) / kPulseDuration;
-        }
-    }
-    return result;
-}
-
-- (void)firePulseTimer:(NSTimer *)timer {
-    USE(timer);
-    HFASSERT(pulseSelectionStartTime != 0);
-    pulseSelectionCurrentTime = CFAbsoluteTimeGetCurrent();
-    [self _addPropertyChangeBits:HFControllerSelectionPulseAmount];
-    if (pulseSelectionCurrentTime - pulseSelectionStartTime > kPulseDuration) {
-        [pulseSelectionTimer invalidate];
-        pulseSelectionTimer = nil;
-    }
-}
-
 - (void)pulseSelection {
-    pulseSelectionStartTime = CFAbsoluteTimeGetCurrent();
-    if (pulseSelectionTimer == nil) {
-        pulseSelectionTimer = [NSTimer scheduledTimerWithTimeInterval:(1. / 30.) target:self selector:@selector(firePulseTimer:) userInfo:nil repeats:YES];
-    }
+    [self _addPropertyChangeBits:HFControllerSelectionPulse];
 }
 
 - (void)scrollByLines:(long double)lines {

@@ -37,7 +37,7 @@
     NSTimer *pulseTimer;
     NSTimer *caretTimer;
     NSWindow *pulseWindow;
-    NSRect pulseWindowBaseFrameInScreenCoordinates;
+    NSRect pulseWindowBaseBounds;
     NSRect lastDrawnCaretRect;
     NSRect caretRectToDraw;
     NSUInteger bytesBetweenVerticalGuides;
@@ -127,8 +127,9 @@
 - (NSUInteger)maximumGlyphCountForByteCount:(NSUInteger)byteCount;
 
 - (void)updateSelectedRanges;
-- (void)updateSelectionPulse;
-- (void)terminateSelectionPulse; // Start fading the pulse.
+- (void)triggerSelectionPulse;   // Try to initiate a pulse on the current selection.
+- (void)updateSelectionPulse;    // Update pulse in response to the displayed lines moving.
+- (void)terminateSelectionPulse; // End the pulse (selection changed, or pulse time over).
 
 /* Given a rect edge, return an NSRect representing the maximum edge in that direction.  The dimension in the direction of the edge is 0 (so if edge is NSMaxXEdge, the resulting width is 0).  The returned rect is in the coordinate space of the receiver's view.  If the byte range is not displayed, returns NSZeroRect.
  */
