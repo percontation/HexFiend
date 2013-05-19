@@ -345,7 +345,8 @@ static NSUInteger deleteFromRange(HFRange source, HFRange rangeToDelete, HFRange
     }
     else {
         /* Handle multiple ranges */
-        [self setCapacity:MAX(rangeCount + newRangeCount, rangeCapacity)];
+        if(rangeCount + newRangeCount > rangeCapacity)
+            [self setCapacity:rangeCount + newRangeCount];
         
         /* Make our gap.  We know we must be multiple because capacity must be at least 2. */
         memmove(multipleRanges + idx + newRangeCount, multipleRanges + idx, (rangeCount - idx) * sizeof *multipleRanges);
