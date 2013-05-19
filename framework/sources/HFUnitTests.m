@@ -403,7 +403,6 @@ static HFByteArray *byteArrayForFile(NSString *path) {
 
 + (void)_testRandomOperationFileWriting {
     const BOOL should_debug = NO;
-    @autoreleasepool {
     
     NSData *data = randomDataOfLength(1 << 16);
     NSURL *fileURL = [NSURL fileURLWithPath:@"/tmp/HexFiendTestFile.data"];
@@ -468,11 +467,9 @@ static HFByteArray *byteArrayForFile(NSString *path) {
     HFTEST([arrayHash isEqual:HFHashFile(fileURL)]);
     
     [[NSFileManager defaultManager] removeItemAtURL:fileURL error:NULL];
-    }
 }
 
 + (void)_testBadPermissionsFileWriting {
-    @autoreleasepool {
     NSString *pathObj = @"/tmp/HexFiendErroneousData_Permissions.data";
     const char *path = [pathObj fileSystemRepresentation];
     NSURL *url = [NSURL fileURLWithPath:pathObj isDirectory:NO];
@@ -503,11 +500,9 @@ static HFByteArray *byteArrayForFile(NSString *path) {
     unlink(path);
     
     [pathObj self]; //make sure this sticks around under GC for its filesystemRepresentation
-    }
 }
 
 + (void)_testBadLengthFileWriting {
-    @autoreleasepool {
     NSString *pathObj = @"/tmp/HexFiendErroneousData_Length.data";
     const char *path = [pathObj fileSystemRepresentation];
     NSURL *url = [NSURL fileURLWithPath:pathObj isDirectory:NO];
@@ -528,7 +523,6 @@ static HFByteArray *byteArrayForFile(NSString *path) {
     unlink(path);
     
     [pathObj self]; //make sure this sticks around under GC for its filesystemRepresentation
-    }
 }
 
 
@@ -592,7 +586,7 @@ static HFByteArray *byteArrayForFile(NSString *path) {
         HFByteArray *byteArray = [[preferredByteArrayClass() alloc] init];
         HFByteSlice *rootSlice = [[HFRepeatingDataByteSlice alloc] initWithRepeatingDataLength: 1 << 20];
         [byteArray insertByteSlice:rootSlice inRange:HFRangeMake(0, 0)];
-        
+
         NSData *needleData = randomDataOfLength(32 + random_upto(63));
         HFByteSlice *needleSlice = [[HFSharedMemoryByteSlice alloc] initWithUnsharedData:needleData];
         HFByteArray *needle = [[preferredByteArrayClass() alloc] init];
@@ -609,7 +603,6 @@ static HFByteArray *byteArrayForFile(NSString *path) {
 }
 
 + (void)_testIndexSet {
-    @autoreleasepool {
     NSMutableIndexSet *nsindexset = [[NSMutableIndexSet alloc] init];
     HFMutableIndexSet *hfindexset = [[HFMutableIndexSet alloc] init];
     unsigned long round, roundCount = 4096 * 4;
@@ -660,7 +653,6 @@ static HFByteArray *byteArrayForFile(NSString *path) {
         
         HFASSERT([hfindexset isEqualToNSIndexSet:nsindexset]);
     }
-}
 }
 
 static HFRange randomRange(uint32_t max) {
@@ -748,20 +740,20 @@ static void exception_thrown(const char *methodName, NSException *exception) {
 + (void)runAllTests {
     CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
     BOOL enableTest = YES;
-//    if (enableTest) [self _runTest:"_testFastMemchr"];
-//    if (enableTest) [self _runTest:"_testRangeFunctions"];
-//    if (enableTest) [self _runTest:"_testByteArray"];
-//    if (enableTest) [self _runTest:"_testByteArrayEditScripts"];
-//    if (enableTest) [self _runTest:"_testTextInsertion"];
-//    if (enableTest) [self _runTest:"_testTextInsertion"];
-//    if (enableTest) [self _runTest:"_testObjectGraph"];
-//    if (enableTest) [self _runTest:"_testRandomOperationFileWriting"];
-//    if (enableTest) [self _runTest:"_testPermutationFileWriting"];
-//    if (enableTest) [self _runTest:"_testBadPermissionsFileWriting"];
-//    if (enableTest) [self _runTest:"_testBadLengthFileWriting"];
+    if (enableTest) [self _runTest:"_testFastMemchr"];
+    if (enableTest) [self _runTest:"_testRangeFunctions"];
+    if (enableTest) [self _runTest:"_testByteArray"];
+    if (enableTest) [self _runTest:"_testByteArrayEditScripts"];
+    if (enableTest) [self _runTest:"_testTextInsertion"];
+    if (enableTest) [self _runTest:"_testTextInsertion"];
+    if (enableTest) [self _runTest:"_testObjectGraph"];
+    if (enableTest) [self _runTest:"_testRandomOperationFileWriting"];
+    if (enableTest) [self _runTest:"_testPermutationFileWriting"];
+    if (enableTest) [self _runTest:"_testBadPermissionsFileWriting"];
+    if (enableTest) [self _runTest:"_testBadLengthFileWriting"];
     if (enableTest) [self _runTest:"_testByteSearching"];
-//    if (enableTest) [self _runTest:"_testIndexSet"];
-//    if (enableTest) [self _runTest:"_testAnnotatedTree"];
+    if (enableTest) [self _runTest:"_testIndexSet"];
+    if (enableTest) [self _runTest:"_testAnnotatedTree"];
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
     printf("Unit tests completed in %.02f seconds\n", end - start);
 }
