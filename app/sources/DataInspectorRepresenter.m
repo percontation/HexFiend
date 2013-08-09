@@ -245,8 +245,7 @@ static NSAttributedString *inspectionError(NSString *s) {
     NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     [paragraphStyle setMinimumLineHeight:(CGFloat)16.];
     NSAttributedString *result = [[NSAttributedString alloc] initWithString:s attributes:[NSDictionary dictionaryWithObjectsAndKeys:[NSColor disabledControlTextColor], NSForegroundColorAttributeName, [NSFont controlContentFontOfSize:11], NSFontAttributeName, paragraphStyle, NSParagraphStyleAttributeName, nil]];
-    [paragraphStyle release];
-    return [result autorelease];
+    return result;
 }
 
 - (id)valueForController:(HFController *)controller ranges:(NSArray *)ranges isError:(BOOL *)outIsError {
@@ -330,7 +329,7 @@ static NSAttributedString *inspectionError(NSString *s) {
         case eInspectorTypeUTF8Text: {
             if(length == 0) return inspectionError(InspectionErrorNoData);
             if(length > MAX_EDITABLE_BYTE_COUNT) return inspectionError(InspectionErrorTooMuch);
-            NSString *ret = [[[NSString alloc] initWithBytes:bytes length:length encoding:NSUTF8StringEncoding] autorelease];
+            NSString *ret = [[NSString alloc] initWithBytes:bytes length:length encoding:NSUTF8StringEncoding];
             if(ret == nil) return inspectionError(@"(bytes are not valid UTF-8)");
             if(outIsError) *outIsError = NO;
             return ret;
@@ -728,7 +727,6 @@ static BOOL stringRangeIsNullBytes(NSString *string, NSRange range) {
                 NSArray *selectedRanges = [controller selectedContentsRanges];
                 NSData *data = [[NSData alloc] initWithBytesNoCopy:bytes length:byteCount freeWhenDone:NO];
                 [controller insertData:data replacingPreviousBytes:0 allowUndoCoalescing:NO];
-                [data release];
                 [controller setSelectedContentsRanges:selectedRanges]; //Hack to preserve the selection across the data insertion
             }
         }

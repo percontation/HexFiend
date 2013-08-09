@@ -13,5 +13,5 @@
 @end
 
 @interface DocumentWindow : NSWindow
-@property (nonatomic, assign) id<NSWindowDelegate, DragDropDelegate>delegate;
+@property (nonatomic, unsafe_unretained) id<NSWindowDelegate, DragDropDelegate>delegate;
 @end
