@@ -127,7 +127,7 @@
     return result;
 }
 
-- (id)byteSliceByAppendingSlice:(HFByteSlice *)slice {
+- (HFByteSlice *)byteSliceByAppendingSlice:(HFByteSlice *)slice {
     REQUIRE_NOT_NULL(slice);
     const unsigned long long sliceLength = [slice length];
     if (sliceLength == 0) return self;

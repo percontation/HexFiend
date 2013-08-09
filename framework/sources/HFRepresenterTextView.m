@@ -398,6 +398,9 @@ enum LineCoverage_t {
      //balance the retain we borrowed from the ivar
     [self _updateCaretTimer];
     [self _forceCaretOnIfHasCaretTimer];
+    
+    // A new pulse window will be created at the new selected range if necessary.
+    [self terminateSelectionPulse];
 }
 
 - (void)drawPulseBackgroundInRect:(NSRect)pulseRect {
@@ -416,6 +419,7 @@ enum LineCoverage_t {
 }
 
 - (void)fadePulseWindowTimer:(NSTimer *)timer {
+    // TODO: close & invalidate immediatley if view scrolls.
     NSWindow *window = [timer userInfo];
     CGFloat alpha = [window alphaValue];
     alpha -= (CGFloat)(3. / 30.);
@@ -428,15 +432,21 @@ enum LineCoverage_t {
     }
 }
 
-- (void)updateSelectionPulse {
-    double selectionPulseAmount = [[self representer] selectionPulseAmount];
-    if (selectionPulseAmount == 0) {
+- (void)terminateSelectionPulse {
+    if (pulseWindow) {
         [[self window] removeChildWindow:pulseWindow];
         [pulseWindow setFrame:pulseWindowBaseFrameInScreenCoordinates display:YES animate:NO];
         [NSTimer scheduledTimerWithTimeInterval:1. / 30. target:self selector:@selector(fadePulseWindowTimer:) userInfo:pulseWindow repeats:YES];
         //release is not necessary, since it relases when closed by default
         pulseWindow = nil;
         pulseWindowBaseFrameInScreenCoordinates = NSZeroRect;
+    }
+}
+
+- (void)updateSelectionPulse {
+    double selectionPulseAmount = [[self representer] selectionPulseAmount];
+    if (selectionPulseAmount == 0) {
+        [self terminateSelectionPulse];
     }
     else {
         if (pulseWindow == nil) {
@@ -1479,7 +1489,7 @@ static size_t unionAndCleanLists(NSRect *rectList, __strong id *valueList, size_
             NSUInteger bookmark = [newKey unsignedIntegerValue];
             callout = [[HFRepresenterTextViewCallout alloc] init];
             [callout setColor:[self colorForBookmark:bookmark]];
-            [callout setLabel:[NSString stringWithFormat:@"%lu", [newKey unsignedIntegerValue]]];
+            [callout setLabel:[NSString stringWithFormat:@"%lu", (unsigned long)[newKey unsignedIntegerValue]]];
             [callout setRepresentedObject:newKey];
             [callouts setObject:callout forKey:newKey];
         }

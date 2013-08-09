@@ -48,7 +48,7 @@
     }
 }
 
-- (id)byteSliceByAppendingSlice:(HFByteSlice *)slice {
+- (HFByteSlice *)byteSliceByAppendingSlice:(HFByteSlice *)slice {
     USE(slice);
     return nil;
 }

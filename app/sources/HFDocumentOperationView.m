@@ -24,7 +24,7 @@ static NSString *sNibName;
 
 @implementation HFDocumentOperationView
 
-+ (id)viewWithNibNamed:(NSString *)name owner:(id)owner {
++ (HFDocumentOperationView *)viewWithNibNamed:(NSString *)name owner:(id)owner {
     NSString *path = [[NSBundle bundleForClass:self] pathForResource:name ofType:@"nib"];
     if (! path) [NSException raise:NSInvalidArgumentException format:@"Unable to find nib named %@", name];
     sNibName = [name copy];
@@ -102,7 +102,7 @@ static NSView *searchForViewWithIdentifier(NSView *view, NSString *identifier) {
     return result;
 }
 
-- (id)viewNamed:(NSString *)name {
+- (NSView *)viewNamed:(NSString *)name {
     NSView *view = searchForViewWithIdentifier(self, name);
     if (! view) [NSException raise:NSInvalidArgumentException format:@"No view named %@ in nib %@", name, nibName];
     return view;

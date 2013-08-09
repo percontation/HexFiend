@@ -30,9 +30,9 @@
 
 - (void)setOtherTopLevelObjects:(NSArray *)objects;
 
-+ (id)viewWithNibNamed:(NSString *)name owner:(id)owner;
++ (HFDocumentOperationView *)viewWithNibNamed:(NSString *)name owner:(id)owner;
 
-- (id)viewNamed:(NSString *)name;
+- (NSView *)viewNamed:(NSString *)name;
 
 - (CGFloat)defaultHeight;
 
