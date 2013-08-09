@@ -221,6 +221,7 @@ void HFBTreeNode_dealloc(HFBTreeNode *node, unsigned int depth) {
             depth++;
             HFASSERT(depth <= MAX_DEPTH);
         }
+        CFRelease(entry);
 #if FIXUP_LENGTHS
         HFBTreeIndex outLength = -1;
         if (! btree_are_cached_lengths_correct(root, depth, &outLength)) {
@@ -746,6 +747,7 @@ static HFBTreeLeaf *btree_descend(HFBTree *tree, struct SubtreeInfo_t *outDescen
     
     /* Walk down the tree */
     for (TreeDepth_t currentDepth = 0; currentDepth < maxDepth; currentDepth++) {
+        HFASSERT(currentBranchOrLeaf != NULL);
         ASSERT_IS_BRANCH(currentBranchOrLeaf);
         HFBTreeBranch *currentBranch = currentBranchOrLeaf;
         HFBTreeIndex priorCombinedOffset = -1;
@@ -759,6 +761,7 @@ static HFBTreeLeaf *btree_descend(HFBTree *tree, struct SubtreeInfo_t *outDescen
         offsetForSubtree -= priorCombinedOffset;
         currentBranchOrLeaf = currentBranch->children[nextChildIndex];
     }
+    HFASSERT(currentBranchOrLeaf != NULL);
     ASSERT_IS_LEAF(currentBranchOrLeaf);
     *insertionOffset = offsetForSubtree;
     return currentBranchOrLeaf;

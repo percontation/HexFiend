@@ -281,6 +281,7 @@ static BOOL returnFTruncateError(NSError **error) {
 			if (toCopy > length)
 				toCopy = length;
 			memcpy(buff, tempBuf + prePad, toCopy);
+            free(tempBuf);
 			length -= toCopy;
 			pos += toCopy;
 			buff += toCopy;
@@ -335,6 +336,7 @@ static BOOL returnFTruncateError(NSError **error) {
 			memcpy(tempBuf + prePad, buff, toCopy);
 			
 			result = pwrite(fileDescriptor, tempBuf, blockSize, offset - prePad);
+            free(tempBuf);
 			if (result < 0)
 				return errno;
 			HFASSERT(result == (ssize_t)blockSize);
@@ -368,8 +370,10 @@ static BOOL returnFTruncateError(NSError **error) {
 		memcpy(tempBuf, buff, lastBlockLen);
 
 		result = pwrite(fileDescriptor, tempBuf, blockSize, offset);
-		if (result < 0)
+		if (result < 0) {
+            free(tempBuf);
 			return errno;
+        }
 		HFASSERT(result == (ssize_t)blockSize);
 	}
     free(tempBuf);

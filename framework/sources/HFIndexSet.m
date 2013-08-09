@@ -70,6 +70,8 @@
     if (val->rangeCount != rangeCount) return NO;
     NSUInteger count = rangeCount;
     const HFRange *mine = [self pointerToRangeAtIndex:0], *his = [val pointerToRangeAtIndex:0];
+    HFASSERT(mine != NULL);
+    HFASSERT(his != NULL);
     while (count--) {
         if (! HFRangeEqualsRange(*mine++, *his++)) return NO;
     }
@@ -348,6 +350,7 @@ static NSUInteger deleteFromRange(HFRange source, HFRange rangeToDelete, HFRange
         [self setCapacity:MAX(rangeCount + newRangeCount, rangeCapacity)];
         
         /* Make our gap.  We know we must be multiple because capacity must be at least 2. */
+        HFASSERT(multipleRanges != NULL);
         memmove(multipleRanges + idx + newRangeCount, multipleRanges + idx, (rangeCount - idx) * sizeof *multipleRanges);
         
         /* Now insert */

@@ -457,6 +457,8 @@ static inline Class preferredByteArrayClass(void) {
         cachedGenerationIndex = newGenerationIndex;
         cachedRange = range;
         NSUInteger length = ll2l(range.length);
+        if(length == 0)
+            return [NSData new];
         unsigned char *data = check_malloc(length);
         [byteArray copyBytes:data range:range];
         cachedData = [[NSData alloc] initWithBytesNoCopy:data length:length freeWhenDone:YES];

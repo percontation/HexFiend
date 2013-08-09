@@ -296,6 +296,9 @@ static inline int common_prefix_length(const char *a, const char *b) {
     const NSUInteger stride = bytesPerLine;
     unsigned long long lineValue = HFProductULL(range.location, bytesPerLine);
     NSUInteger characterCount = [self characterCountForLineRange:range];
+    if(characterCount == 0)
+        return @"";
+    
     char *buffer = check_malloc(characterCount);
     NSUInteger bufferIndex = 0;
     

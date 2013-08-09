@@ -961,6 +961,7 @@ static const CGFloat kScrollMultiplier = (CGFloat)1.5;
     HFASSERT(testController == [leftTextView controller] || testController == [rightTextView controller]);
     BOOL left = (testController == [leftTextView controller]);
     const NSUInteger bytesPerLine = [testController bytesPerLine];
+    HFASSERT(bytesPerLine != 0);
     
     /* Now figure out the change in line length before the start line */
     unsigned long long firstDisplayedAbstractCharacterIndex = HFProductULL(HFFPToUL(floorl(abstractRange.location)), bytesPerLine);

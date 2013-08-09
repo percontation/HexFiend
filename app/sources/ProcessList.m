@@ -37,8 +37,8 @@ static NSString *nameForProcessWithPID(pid_t pidNum)
     
     size = (size_t)maxarg;
     if ( sysctl(mib, 3, args, &size, NULL, 0) == -1 ) {
-	free( args );
-	return nil;
+        free( args );
+        return nil;
     }
     
     memcpy( &numArgs, args, sizeof(numArgs) );
@@ -49,7 +49,7 @@ static NSString *nameForProcessWithPID(pid_t pidNum)
     } else {
 	returnString = [[NSString alloc] initWithUTF8String:stringPtr];
     }
-    
+    free(args);
     return returnString;
 }
 
@@ -194,22 +194,23 @@ static NSInteger compareMenuItems(id item1, id item2, void *unused) {
     Class runningAppClass = NSClassFromString(@"NSRunningApplication");
     NSMutableArray *items = [NSMutableArray array];
     for (procIndex = 0; procIndex < numProcs; procIndex++) {
-	pid_t pid = procs[procIndex].kp_proc.p_pid;
-	NSString *name = nameForProcessWithPID(pid);
-	if (name) {
-	    NSString *title = [name stringByAppendingFormat:@" (%ld)", (long)pid];
-	    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:title action:@selector(openProcessByProcessMenuItem:) keyEquivalent:@""];
-            [item setTarget:self];
-	    [item setRepresentedObject:[NSNumber numberWithLong:pid]];
-	    NSImage *image = [[runningAppClass runningApplicationWithProcessIdentifier:pid] icon];
-	    if (image) {
-		NSImage *icon = [image copy];
-		[icon setSize:NSMakeSize(16, 16)];
-		[item setImage:icon];
-	    }
-	    [items addObject:item];
-	}
+        pid_t pid = procs[procIndex].kp_proc.p_pid;
+        NSString *name = nameForProcessWithPID(pid);
+        if (name) {
+            NSString *title = [name stringByAppendingFormat:@" (%ld)", (long)pid];
+            NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:title action:@selector(openProcessByProcessMenuItem:) keyEquivalent:@""];
+                [item setTarget:self];
+            [item setRepresentedObject:[NSNumber numberWithLong:pid]];
+            NSImage *image = [[runningAppClass runningApplicationWithProcessIdentifier:pid] icon];
+            if (image) {
+            NSImage *icon = [image copy];
+            [icon setSize:NSMakeSize(16, 16)];
+            [item setImage:icon];
+            }
+            [items addObject:item];
+        }
     }
+    free(procs);
     [items sortUsingFunction:compareMenuItems context:NULL];
     FOREACH(NSMenuItem *, item, items) {
 	[menu addItem:item];

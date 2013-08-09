@@ -34,7 +34,7 @@ static HFPrivilegedHelperConnection *sSharedConnection;
 
 - (BOOL)readBytes:(void *)bytes range:(HFRange)range process:(pid_t)process error:(NSError **)error {
     HFASSERT(range.length <= ULONG_MAX);
-    HFASSERT(bytes != NULL || range.length > 0);
+    HFASSERT(bytes != NULL && range.length > 0);
     if (! [self connectIfNecessary]) return NO;
     void *resultData = NULL;
     mach_msg_type_number_t resultCnt;
