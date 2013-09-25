@@ -1569,13 +1569,11 @@
 		D00C15ED0FF09200006D021F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = sample_code/HexFiendling/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = HexFiendling;
-				VALID_ARCHS = "ppc64 x86_64 i386 ppc ppc7400 ppc970";
 			};
 			name = Debug;
 		};
@@ -1583,43 +1581,43 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D075E2141481ACFF0010D9AE /* Release.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_STRICT_ALIASING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx10.7;
 				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
 			};
 			name = Release;
 		};
 		D0222569146F5D3900646C27 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = app/sources/HexFiend_2_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = "Hex Fiend";
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
@@ -1627,7 +1625,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1637,26 +1634,16 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/HexFiend_2_Framework_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				INFOPLIST_FILE = "framework/HexFiend_Framework-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_DYLIB_INSTALL_NAME = "@loader_path/../Frameworks/HexFiend.framework/Versions/A/HexFiend";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = HexFiend;
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-					"-Winit-self",
-					"-Wno-unused",
-				);
 			};
 			name = Release;
 		};
 		D022256C146F5D3900646C27 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1674,10 +1661,8 @@
 		D022256D146F5D3900646C27 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/BTree/BTree_Testing/BTree_Test_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-DHFTEST_BTREES=1";
 				PRODUCT_NAME = Test_BTree;
 			};
@@ -1686,13 +1671,11 @@
 		D022256E146F5D3900646C27 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = sample_code/HexFiendling/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = HexFiendling;
-				VALID_ARCHS = "ppc64 x86_64 i386 ppc ppc7400 ppc970";
 			};
 			name = Release;
 		};
@@ -1707,51 +1690,50 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D075E2121481ACFF0010D9AE /* Debug+UnitTests.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_STRICT_ALIASING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx10.7;
 				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
 			};
 			name = "Debug+UnitTests";
 		};
 		D022259E146F629E00646C27 /* Debug+UnitTests */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = app/sources/HexFiend_2_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = "Hex Fiend";
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
 			};
 			name = "Debug+UnitTests";
 		};
 		D022259F146F629E00646C27 /* Debug+UnitTests */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1761,26 +1743,16 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/HexFiend_2_Framework_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				INFOPLIST_FILE = "framework/HexFiend_Framework-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_DYLIB_INSTALL_NAME = "@loader_path/../Frameworks/HexFiend.framework/Versions/A/HexFiend";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = HexFiend;
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-					"-Winit-self",
-					"-Wno-unused",
-				);
 			};
 			name = "Debug+UnitTests";
 		};
 		D02225A1146F629E00646C27 /* Debug+UnitTests */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1798,10 +1770,8 @@
 		D02225A2146F629E00646C27 /* Debug+UnitTests */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/BTree/BTree_Testing/BTree_Test_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-DHFTEST_BTREES=1";
 				PRODUCT_NAME = Test_BTree;
 			};
@@ -1810,13 +1780,11 @@
 		D02225A3146F629E00646C27 /* Debug+UnitTests */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = sample_code/HexFiendling/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = HexFiendling;
-				VALID_ARCHS = "ppc64 x86_64 i386 ppc ppc7400 ppc970";
 			};
 			name = "Debug+UnitTests";
 		};
@@ -1831,43 +1799,43 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D039DC081483100500364FA6 /* Release+CodeSign.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_STRICT_ALIASING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx10.7;
 				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
 			};
 			name = "Release+CodeSign";
 		};
 		D039DC1214835A1400364FA6 /* Release+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = app/sources/HexFiend_2_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = "Hex Fiend";
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
 			};
 			name = "Release+CodeSign";
 		};
@@ -1875,7 +1843,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1885,26 +1852,16 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/HexFiend_2_Framework_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				INFOPLIST_FILE = "framework/HexFiend_Framework-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_DYLIB_INSTALL_NAME = "@loader_path/../Frameworks/HexFiend.framework/Versions/A/HexFiend";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = HexFiend;
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-					"-Winit-self",
-					"-Wno-unused",
-				);
 			};
 			name = "Release+CodeSign";
 		};
 		D039DC1414835A1400364FA6 /* Release+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1922,10 +1879,8 @@
 		D039DC1514835A1400364FA6 /* Release+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/BTree/BTree_Testing/BTree_Test_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-DHFTEST_BTREES=1";
 				PRODUCT_NAME = Test_BTree;
 			};
@@ -1934,13 +1889,11 @@
 		D039DC1614835A1400364FA6 /* Release+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = sample_code/HexFiendling/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = HexFiendling;
-				VALID_ARCHS = "ppc64 x86_64 i386 ppc ppc7400 ppc970";
 			};
 			name = "Release+CodeSign";
 		};
@@ -1954,7 +1907,6 @@
 		D047E31E1022CEFF00EF307B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1972,10 +1924,8 @@
 		D06D60170FA69B27002376EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/BTree/BTree_Testing/BTree_Test_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-DHFTEST_BTREES=1";
 				PRODUCT_NAME = Test_BTree;
 			};
@@ -1985,51 +1935,50 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D075E2111481ACFF0010D9AE /* Debug+CodeSign.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_STRICT_ALIASING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx10.7;
 				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
 			};
 			name = "Debug+CodeSign";
 		};
 		D075E205148196B00010D9AE /* Debug+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = app/sources/HexFiend_2_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = "Hex Fiend";
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
 			};
 			name = "Debug+CodeSign";
 		};
 		D075E206148196B00010D9AE /* Debug+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2039,26 +1988,16 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/HexFiend_2_Framework_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				INFOPLIST_FILE = "framework/HexFiend_Framework-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_DYLIB_INSTALL_NAME = "@loader_path/../Frameworks/HexFiend.framework/Versions/A/HexFiend";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = HexFiend;
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-					"-Winit-self",
-					"-Wno-unused",
-				);
 			};
 			name = "Debug+CodeSign";
 		};
 		D075E208148196B00010D9AE /* Debug+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -2076,10 +2015,8 @@
 		D075E209148196B00010D9AE /* Debug+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/BTree/BTree_Testing/BTree_Test_Prefix.pch;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_CFLAGS = "-DHFTEST_BTREES=1";
 				PRODUCT_NAME = Test_BTree;
 			};
@@ -2088,13 +2025,11 @@
 		D075E20A148196B00010D9AE /* Debug+CodeSign */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = sample_code/HexFiendling/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = HexFiendling;
-				VALID_ARCHS = "ppc64 x86_64 i386 ppc ppc7400 ppc970";
 			};
 			name = "Debug+CodeSign";
 		};
@@ -2109,28 +2044,35 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D075E2131481ACFF0010D9AE /* Debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_STRICT_ALIASING = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = macosx10.7;
 				VALID_ARCHS = x86_64;
+				WARNING_CFLAGS = (
+					"-W",
+					"-Wall",
+				);
 			};
 			name = Debug;
 		};
 		D083F7360DBCBD5F00C2B632 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2140,42 +2082,25 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = framework/sources/HexFiend_2_Framework_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				INFOPLIST_FILE = "framework/HexFiend_Framework-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks";
 				LD_DYLIB_INSTALL_NAME = "@loader_path/../Frameworks/HexFiend.framework/Versions/A/HexFiend";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = HexFiend;
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-					"-Winit-self",
-					"-Wno-unused",
-				);
 			};
 			name = Debug;
 		};
 		D083F7370DBCBD5F00C2B632 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = app/sources/HexFiend_2_Prefix.pch;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_CFLAGS = "-fblocks";
 				PRODUCT_NAME = "Hex Fiend";
-				WARNING_CFLAGS = (
-					"-W",
-					"-Wall",
-				);
-				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
 		};
