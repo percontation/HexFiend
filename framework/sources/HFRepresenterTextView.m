@@ -1149,8 +1149,7 @@ static size_t unionAndCleanLists(NSRect *rectList, __strong id *valueList, size_
 }
 
 - (void)setByteColoring:(void (^)(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*))coloring {
-    Block_release(byteColoring);
-    byteColoring = coloring ? Block_copy(coloring) : NULL;
+    byteColoring = coloring;
     [self setNeedsDisplay:YES];
 }
 
@@ -1285,7 +1284,7 @@ static size_t unionAndCleanLists(NSRect *rectList, __strong id *valueList, size_
     /* Finally we can draw them! First, draw byte backgrounds. */
     [self drawByteColoringBackground:range inRect:rect];
     
-    const struct PropertyInfo_t *p;
+    const HFRectsAndProperties *p;
     
     /* Draw backgrounds */
     p = propertyInfos[0];

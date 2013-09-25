@@ -45,7 +45,7 @@
     NSArray *rowBackgroundColors;
     NSMutableDictionary *callouts;
     
-    void (^byteColoring)(uint8_t byte, uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *a);
+    void (^__strong byteColoring)(uint8_t byte, uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *a);
     
     struct  {
         unsigned antialias:1;

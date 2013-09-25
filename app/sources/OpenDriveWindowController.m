@@ -93,8 +93,7 @@ void addDisk(DADiskRef disk, void * context)
     CFDictionaryRef diskDesc = DADiskCopyDescription(disk);
 	if(diskDesc)
 	{
-        [refSelf addToDriveList:(NSDictionary*)diskDesc];
-        CFRelease(diskDesc);
+        [refSelf addToDriveList:(NSDictionary*)CFBridgingRelease(diskDesc)];
 	}
 }
 
