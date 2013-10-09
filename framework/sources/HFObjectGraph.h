@@ -10,7 +10,6 @@
 
 @interface HFObjectGraph : NSObject {
     NSMapTable *graph;
-    NSMutableArray *containedObjects;
 }
 
 - (void)addDependency:depend forObject:obj;

@@ -987,11 +987,10 @@ static inline Class preferredByteArrayClass(void) {
     [(NSTextField*)[saveView viewNamed:@"saveLabelField"] setStringValue:[NSString stringWithFormat:@"Saving \"%@\"", [self displayName]]];
 
     __block NSInteger saveResult = 0;
-    //TODO: Check to see how ARC deals with outError/localError business
     [saveView startOperation:^id(HFProgressTracker *tracker) {
         NSError *localError = nil;
         id result = [self threadedSaveToURL:inAbsoluteURL trackingProgress:tracker error:&localError];
-        if (outError && localError && !*outError) *outError = localError;
+        if (outError && localError && !*outError) *outError = localError; // Only export the first bug found.
         return result;
     } completionHandler:^(id result) {
         saveResult = [result integerValue];

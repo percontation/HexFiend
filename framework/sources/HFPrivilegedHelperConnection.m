@@ -48,7 +48,7 @@ static HFPrivilegedHelperConnection *sSharedConnection;
         if (error) *error = nil;
         return NO;
     }
-    if(bytes) memcpy(bytes, resultData, (size_t)range.length);
+    memcpy(bytes, resultData, (size_t)range.length);
     kr = vm_deallocate(mach_task_self(), (vm_address_t)resultData, resultCnt);
     if (kr != KERN_SUCCESS) {
         fprintf(stdout, "failed to vm_deallocate(%p) for pid %d\nmach error: %s\n", resultData, process, (char*) mach_error_string(kr));

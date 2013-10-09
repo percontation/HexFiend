@@ -63,8 +63,8 @@ static void walk_tree_nodes(HFBTree *tree, void (^blk)(HFBTreeNode *node, BOOL i
 
 #if HFTEST_BTREES
 
-#define ASSERT_IS_BRANCH(a) HFASSERT(! a->isLeaf)
-#define ASSERT_IS_LEAF(a) HFASSERT(a->isLeaf)
+#define ASSERT_IS_BRANCH(a) HFASSERT(a && !a->isLeaf)
+#define ASSERT_IS_LEAF(a) HFASSERT(a && a->isLeaf)
 
 #else
 
@@ -226,6 +226,7 @@ void HFBTreeNode_dealloc(HFBTreeNode *node, unsigned int depth) {
             depth++;
             HFASSERT(depth <= MAX_DEPTH);
         }
+        CFRelease(entry);
 #if FIXUP_LENGTHS
         HFBTreeIndex outLength = -1;
         if (! btree_are_cached_lengths_correct(root, depth, &outLength)) {

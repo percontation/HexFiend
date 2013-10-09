@@ -167,17 +167,18 @@ static inline Class preferredByteArrayClass(void) {
 }
 
 - (void)_firePropertyChanges {
-    if(additionalPendingTransactions == nil && propertiesToUpdateInCurrentTransaction == 0) return;
+    if(additionalPendingTransactions == nil && propertiesToUpdateInCurrentTransaction == 0)
+        return;
 
     NSMutableArray *pendingTransactions = additionalPendingTransactions;
     additionalPendingTransactions = nil;
     HFControllerPropertyBits propertiesToUpdate = propertiesToUpdateInCurrentTransaction;
     propertiesToUpdateInCurrentTransaction = 0;
     BEGIN_TRANSACTION();
-    if(pendingTransactions) for(NSNumber *obj in pendingTransactions) {
-        HFControllerPropertyBits propertiesInThisTransaction = [obj unsignedIntegerValue];
-        HFASSERT(propertiesInThisTransaction != 0);
-        [self notifyRepresentersOfChanges:propertiesInThisTransaction];
+    for(NSNumber *obj in pendingTransactions) {
+        HFControllerPropertyBits propBits = [obj unsignedIntegerValue];
+        HFASSERT(propBits != 0);
+        [self notifyRepresentersOfChanges:propBits];
     }
     if (propertiesToUpdate) {
         [self notifyRepresentersOfChanges:propertiesToUpdate];
