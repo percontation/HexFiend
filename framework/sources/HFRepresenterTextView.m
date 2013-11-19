@@ -1183,7 +1183,7 @@ static size_t unionAndCleanLists(NSRect *rectList, __strong id *valueList, size_
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, 4 * rect.size.width, NULL);
     CGColorSpaceRef cgcolorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     CGImageRef image = CGImageCreate(rect.size.width, 1, 8, 32, 4 * rect.size.width, cgcolorspace,
-                                     kCGImageAlphaLast, provider, NULL, false, kCGRenderingIntentDefault);
+                                     (CGBitmapInfo)kCGImageAlphaLast, provider, NULL, false, kCGRenderingIntentDefault);
     CGContextDrawImage([[NSGraphicsContext currentContext] graphicsPort], rect, image);
     CGColorSpaceRelease(cgcolorspace);
     CGImageRelease(image);
@@ -1544,7 +1544,7 @@ static size_t unionAndCleanLists(NSRect *rectList, __strong id *valueList, size_
             NSUInteger bookmark = [newKey unsignedIntegerValue];
             callout = [[HFRepresenterTextViewCallout alloc] init];
             [callout setColor:[self colorForBookmark:bookmark]];
-            [callout setLabel:[NSString stringWithFormat:@"%lu", (unsigned long)[newKey unsignedIntegerValue]]];
+            [callout setLabel:[NSString stringWithFormat:@"%lu", [newKey unsignedLongValue]]];
             [callout setRepresentedObject:newKey];
             [callouts setObject:callout forKey:newKey];
         }

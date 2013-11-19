@@ -114,7 +114,7 @@
 }
 
 - (void)drawGradientWithClip:(NSRect)clip {
-    [[NSColor colorWithCalibratedWhite:(CGFloat).87 alpha:1] set];
+    [[representer backgroundColor] set];
     NSRectFill(clip);
     
     NSInteger shadowEdge = [representer interiorShadowEdge];
@@ -129,7 +129,59 @@
 
 - (void)drawDividerWithClip:(NSRect)clipRect {
     USE(clipRect);
+    
+
+#if 1    
+    NSInteger edges = [representer borderedEdges];
     NSRect bounds = [self bounds];
+    
+    
+    // -1 means to draw no edges
+    if (edges == -1) {
+        edges = 0;
+    }
+    
+    [[representer borderColor] set];
+    
+    if ((edges & (1 << NSMinXEdge)) > 0) {
+        NSRect lineRect = bounds;
+        lineRect.size.width = 1;
+        lineRect.origin.x = 0;
+        if (NSIntersectsRect(lineRect, clipRect)) {
+            NSRectFill(lineRect);
+        }
+    }
+    
+    if ((edges & (1 << NSMaxXEdge)) > 0) {
+        NSRect lineRect = bounds;
+        lineRect.size.width = 1;
+        lineRect.origin.x = NSMaxX(bounds) - lineRect.size.width;
+        if (NSIntersectsRect(lineRect, clipRect)) {
+            NSRectFill(lineRect);
+        }
+    }
+    
+    if ((edges & (1 << NSMinYEdge)) > 0) {
+        NSRect lineRect = bounds;
+        lineRect.size.height = 1;
+        lineRect.origin.y = 0;
+        if (NSIntersectsRect(lineRect, clipRect)) {
+            NSRectFill(lineRect);
+        }
+    }
+    
+    if ((edges & (1 << NSMaxYEdge)) > 0) {
+        NSRect lineRect = bounds;
+        lineRect.size.height = 1;
+        lineRect.origin.y = NSMaxY(bounds) - lineRect.size.height;
+        if (NSIntersectsRect(lineRect, clipRect)) {
+            NSRectFill(lineRect);
+        }
+    }
+    
+    
+    // Backwards compatibility to always draw a border on the edge with the interior shadow
+    
     NSRect lineRect = bounds;
     lineRect.size.width = 1;
     NSInteger shadowEdge = [representer interiorShadowEdge];
@@ -142,14 +194,13 @@
     }
     
     if (NSIntersectsRect(lineRect, clipRect)) {
-#if 1
-        [[NSColor darkGrayColor] set];
-        NSRect bounds = [self bounds];
-        NSRect lineRect = bounds;
-        lineRect.size.width = 1;
-        lineRect.origin.x = NSMaxX(bounds) - lineRect.size.width;
         NSRectFill(lineRect);
+    }
+    
 #else
+    
+    
+    if (NSIntersectsRect(lineRect, clipRect)) {
         // this looks better when we have no shadow
         [[NSColor lightGrayColor] set];
         NSRect bounds = [self bounds];
@@ -160,8 +211,8 @@
         [[NSColor whiteColor] set];
         lineRect.origin.x += 1;
         NSRectFill(NSIntersectionRect(lineRect, clipRect));	
-#endif
     }
+#endif
 }
 
 static inline int common_prefix_length(const char *a, const char *b) {
@@ -495,21 +546,34 @@ static inline int common_prefix_length(const char *a, const char *b) {
 #if TIME_LINE_NUMBERS
     CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
 #endif
-    NSInteger drawingMode = (useStringDrawingPath ? 1 : 2);
+    NSInteger drawingMode = (useStringDrawingPath ? 1 : 3);
     switch (drawingMode) {
+        // Drawing can't be done right if fonts are wider than expected, but all
+        // of these have rather nasty behavior in that case. I've commented what
+        // that behavior is; the comment is hypothetical 'could' if it shouldn't
+        // actually be a problem in practice.
+        // TODO: Make a drawing mode that is "Fonts could get clipped if too wide"
+        //       because that seems like better behavior than any of these.
         case 0:
+            // Most fonts are too wide and every character gets piled on right (unreadable).
             [self drawLineNumbersWithClipLayoutManagerPerLine:clipRect];
             break;
         case 1:
+            // Last characters could get omitted (*not* clipped) if too wide.
+            // Also, most fonts have bottoms clipped (very unsigntly).
             [self drawLineNumbersWithClipStringDrawing:clipRect];
             break;
         case 2:
+            // Most fonts are too wide and wrap (breaks numbering).
             [self drawLineNumbersWithClipFullLayoutManager:clipRect];
             break;
         case 3:
+            // Fonts could wrap if too wide (breaks numbering).
+            // *Note that that this is the only mode that generally works.*
             [self drawLineNumbersWithClipSingleStringDrawing:clipRect];
             break;
         case 4:
+            // Most fonts are too wide and wrap (breaks numbering).
             [self drawLineNumbersWithClipSingleStringCellDrawing:clipRect];
             break;
     }
@@ -517,7 +581,6 @@ static inline int common_prefix_length(const char *a, const char *b) {
     CFAbsoluteTime endTime = CFAbsoluteTimeGetCurrent();
     NSLog(@"Line number time: %f", endTime - startTime);
 #endif
-    
 }
 
 - (void)drawRect:(NSRect)clipRect {

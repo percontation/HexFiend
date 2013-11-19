@@ -687,7 +687,7 @@ static void removeFromDictionaryOfSets(NSMutableDictionary *dictionary, NSString
 - (void)byteRange:(HFRange)dyingRange wasReplacedByBytesOfLength:(unsigned long long)replacementLength {
     @autoreleasepool {
     
-        NSMapTable *nodesToReplace = [NSMapTable mapTableWithStrongToStrongObjects];
+        NSMapTable *nodesToReplace = [NSMapTable strongToStrongObjectsMapTable];
         
         const id null = [NSNull null];
         

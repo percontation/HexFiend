@@ -162,7 +162,6 @@ static NSView *searchForViewWithIdentifier(NSView *view, NSString *identifier) {
     completionHandler(threadResult);
     tracker = nil;
     [self willChangeValueForKey:@"operationIsRunning"];
-    dispatch_release(waitGroup);
     waitGroup = NULL;
     [self didChangeValueForKey:@"operationIsRunning"];
     [cancelButton setHidden: ! [self operationIsRunning]];
